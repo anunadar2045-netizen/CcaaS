@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --text:#0f172a;
+      --primary:#824bf3;
+      --primary-600:#6b3db8;
+      --ring: rgba(130,75,243,.25);
+      --ring-soft: rgba(130,75,243,.12);
+      --divider:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background: var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--text);
+    }
+    .shell{
+      width:clamp(320px, 92vw, 1100px);
+      min-height:620px;
+      background:#fff;
+      border:1px solid #eef2f7;
+      border-radius:28px;
+      box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1.1fr 1fr;
+    }
+    .visual{
+      position:relative;
+      background: linear-gradient(180deg,#fafbff, #ffffff 60%);
+      border-right: 1px solid #f1f5f9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:56px 48px;
+    }
+    .visual-inner{width:100%; max-width:560px}
+    .visual-img{display:block; width:100%; height:auto; object-fit:contain}
+    .form{
+      background:var(--card);
+      padding:56px 44px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:8px;
+    }
+    .brand img{
+      height:56px;
+      width:auto;
+      object-fit:contain;
+    }
+    .title{font-size:32px;font-weight:700;letter-spacing:-0.02em;color:#1f2937}
+    .subtitle{font-size:14px;color:var(--muted);margin-top:-6px}
+    .field{
+      position:relative;
+      margin-top:6px;
+    }
+    .field i{
+      position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:14px
+    }
+    .input{
+      width:100%;
+      border:1px solid var(--divider);
+      border-radius:12px;
+      padding:14px 14px 14px 42px;
+      font-size:14px;
+      outline:none;
+      color:#111827;
+      background:#fff;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .input:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px var(--ring-soft);
+    }
+    .btn{
+      margin-top:6px;
+      width:100%;
+      border:0;
+      border-radius:14px;
+      padding:14px 18px;
+      background:linear-gradient(90deg,var(--primary) 0%, var(--primary-600) 100%);
+      color:#fff;
+      font-weight:700;
+      letter-spacing:.3px;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(130,75,243,.22);
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .error{
+      display:none;
+      margin-top:4px;
+      font-size:13px;
+      color:#dc2626;
+      background:#fee2e2;
+      border:1px solid #fecaca;
+      padding:10px 12px;
+      border-radius:10px;
+    }
+    .footer{
+      margin-top:auto;
+      text-align:center;
+      font-size:12px;
+      color:#9ca3af;
+    }
+    .brand{color:var(--primary); font-weight:700}
+    @media(max-width:980px){
+      .shell{grid-template-columns:1fr}
+      .visual{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="visual">
+      <div class="visual-inner">
+        <img class="visual-img" src="https://app.z99.in/assets/img/illustrations/login/station.svg" alt="Secure station illustration">
+      </div>
+    </div>
+    <div class="form">
+      <div class="brand"><img src="CCaaS.png__1_-removebg-preview.png" alt="Company logo"></div>
+      <div class="title">Sign In</div>
+      <div class="subtitle">Welcome back to your account.</div>
+      <div class="field">
+        <i class="fa-solid fa-briefcase"></i>
+        <input id="businessName" class="input" type="text" placeholder="Business Name" autocomplete="organization">
+      </div>
+      <div class="field">
+        <i class="fa-solid fa-user"></i>
+        <input id="userName" class="input" type="text" placeholder="User Name" autocomplete="username">
+      </div>
+      <div class="field">
+        <i class="fa-solid fa-lock"></i>
+        <input id="password" class="input" type="password" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div id="error" class="error"></div>
+      <button id="loginBtn" class="btn" style="font-size: 16px;">Login Now</button>
+    </div>
+  </div>
+  <script>
+    const roleKey = 'authRole';
+    const errorBox = document.getElementById('error');
+    function go(role){
+      localStorage.setItem(roleKey, role);
+      if(role === 'admin'){ window.location.href = 'index.html'; return; }
+      if(role === 'agent'){ window.location.href = 'indexx.html'; return; }
+      if(role === 'subadmin'){ window.location.href = 'sa_index.html'; return; }
+    }
+    function login(){
+      const b = document.getElementById('businessName').value.trim().toLowerCase();
+      const u = document.getElementById('userName').value.trim().toLowerCase();
+      const p = document.getElementById('password').value.trim().toLowerCase();
+      if(b==='admin' && u==='admin' && p==='admin'){ go('admin'); return; }
+      if(b==='agent' && u==='agent' && p==='agent'){ go('agent'); return; }
+      if(b==='subadmin' && u==='subadmin' && p==='subadmin'){ go('subadmin'); return; }
+      errorBox.textContent = 'Invalid credentials. Use admin/admin/admin, agent/agent/agent, or subadmin/subadmin/subadmin.';
+      errorBox.style.display = 'block';
+    }
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Enter') login(); });
+    (function(){
+      const r = localStorage.getItem(roleKey);
+      if(r==='admin'){ window.location.replace('index.html'); }
+      if(r==='agent'){ window.location.replace('indexx.html'); }
+      if(r==='subadmin'){ window.location.replace('sa_index.html'); }
+    })();
+  </script>
+</body>
+</html>
+

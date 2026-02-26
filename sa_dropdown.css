@@ -1,0 +1,564 @@
+/* Custom Dropdown Styling */
+.input-with-icon select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+}
+
+.input-with-icon select option {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: var(--card-bg);
+    border: none;
+}
+
+.input-with-icon select option:hover,
+.input-with-icon select option:checked {
+    background: var(--primary-purple-light);
+    color: var(--primary-purple);
+}
+
+body.dark-mode .input-with-icon select option {
+    background: var(--card-bg);
+    color: var(--text-dark);
+}
+
+body.dark-mode .input-with-icon select option:hover,
+body.dark-mode .input-with-icon select option:checked {
+    background: var(--primary-purple-light);
+    color: #c7d2fe;
+}
+
+/* Actions Dropdown Menu */
+.actions-dropdown {
+    position: relative;
+}
+
+.actions-menu {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.actions-menu.show {
+    display: block;
+}
+
+.actions-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.actions-menu-item:last-child {
+    border-bottom: none;
+}
+
+.actions-menu-item:hover {
+    background: var(--hover-bg);
+}
+
+.actions-menu-item.danger {
+    color: var(--red-color);
+}
+
+.actions-menu-item-text {
+    flex: 1;
+}
+
+.actions-menu-item-subtext {
+    font-size: 11px;
+    color: var(--text-gray);
+    margin-top: 2px;
+}
+
+.actions-menu-item i {
+    margin-left: 8px;
+    font-size: 12px;
+}
+
+body.dark-mode .actions-menu {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .actions-menu-item {
+    color: var(--text-dark);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .actions-menu-item:hover {
+    background: var(--hover-bg);
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-gray);
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: var(--hover-bg);
+    color: var(--text-dark);
+}
+
+.modal-body {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-bottom: 40px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 24px 24px 32px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--card-bg);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-purple);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: var(--hover-bg);
+}
+
+.btn-save {
+    padding: 10px 20px;
+    border: none;
+    background: var(--primary-purple);
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    background: #6b3db8;
+}
+
+.agents-list,
+.leadsets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.agent-item,
+.leadset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+}
+
+.agent-info,
+.leadset-info {
+    flex: 1;
+}
+
+.agent-name,
+.leadset-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.agent-status,
+.leadset-count {
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-dark);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: var(--hover-bg);
+}
+
+.btn-small.btn-danger {
+    border-color: var(--red-color);
+    color: var(--red-color);
+}
+
+.btn-small.btn-danger:hover {
+    background: var(--red-bg);
+}
+
+body.dark-mode .modal-content {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .modal-header {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .modal-footer {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+body.dark-mode .agent-item,
+body.dark-mode .leadset-item {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Phone Number List Styling */
+.phone-number-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.phone-number-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+}
+
+.phone-number-item span {
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+/* Switch Component Styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-left: 12px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-purple);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-purple);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.switch-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+body.dark-mode .phone-number-item {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .phone-number-item span {
+    color: var(--text-dark);
+}
+
+/* Days-wise Timing Schedule Styling */
+.timing-schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.day-schedule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+}
+
+.day-header {
+    flex: 1;
+}
+
+.day-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.day-time input[type="time"] {
+    width: 120px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--card-bg);
+    color: var(--text-dark);
+}
+
+.day-time span {
+    font-size: 14px;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+body.dark-mode .day-schedule {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .day-time input[type="time"] {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+}
+
+body.dark-mode .day-time span {
+    color: var(--text-gray);
+}
+
+/* Churn Modal Radio Button Styling */
+.churn-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.churn-option {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+    transition: all 0.2s;
+}
+
+.churn-option:hover {
+    border-color: var(--primary-purple);
+    background: var(--hover-bg);
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    accent-color: var(--primary-purple);
+}
+
+.radio-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+body.dark-mode .churn-option {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .churn-option:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary-purple);
+}
+
+body.dark-mode .radio-text {
+    color: var(--text-dark);
+}
+
+/* Logout button hover arrow */
+.user-logout-btn .logout-arrow {
+    opacity: 0;
+    width: 0;
+    transform: translateX(-4px);
+    transition: all 0.2s;
+}
+.user-logout-btn:hover .logout-arrow {
+    opacity: 1;
+    width: auto;
+    transform: translateX(0);
+}

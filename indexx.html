@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCaaS Agent Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function(){ if(localStorage.getItem('authRole')!=='agent'){ window.location.replace('login.html'); } })();
+    </script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#8b5cf6', // Violet/Purple
+                        secondary: '#10b981', // Emerald/Green
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar to match modern UI feels if needed, though default is usually fine */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Dark mode scrollbar overrides if needed */
+        .dark body {
+            background-color: #111827; /* gray-900 */
+            color: #f3f4f6; /* gray-100 */
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #8b5cf6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #8b5cf6;
+        }
+        /* Custom Dropdown Styling */
+        .custom-select-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-top: 0.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 50;
+            padding: 0.25rem;
+        }
+        .dark .custom-select-options {
+            background-color: #1f2937; /* gray-800 */
+            border-color: #374151; /* gray-700 */
+        }
+        .custom-select-options.open {
+            display: block;
+        }
+        .custom-option {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+        .dark .custom-option {
+            color: #d1d5db; /* gray-300 */
+        }
+        .custom-option:hover {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        /* Thinner Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-[#f8f9fa] dark:bg-gray-900 h-screen flex overflow-hidden text-gray-700 dark:text-gray-100">
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- Top Header -->
+        <header class="flex justify-between items-center px-8 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+            <div class="flex space-x-8">
+                <button id="main-tab-dashboard" onclick="switchMainTab('dashboard')" class="pb-2 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold text-sm transition-colors">Dashboard</button>
+                <button id="main-tab-call-info" onclick="switchMainTab('call-info')" class="pb-2 border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium text-sm transition-colors">Call Information</button>
+            </div>
+            <div>
+                <!-- Theme Toggle (Sun icon) -->
+                <button id="theme-toggle" class="w-10 h-10 bg-white dark:bg-gray-700 rounded-full shadow-sm flex items-center justify-center text-yellow-400 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-100 dark:border-gray-600 transition-colors">
+                    <i class="fas fa-sun dark:hidden"></i>
+                    <i class="fas fa-moon hidden dark:block"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <!-- Fixed Top Content (Stats, Tabs, Filters) -->
+        <div class="px-8 pt-8 pb-4 flex-shrink-0 bg-[#f8f9fa] dark:bg-gray-900 z-10">
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-4 gap-6 mb-8">
+                <!-- Card 1: Agent -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-100 dark:border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-500 dark:text-purple-400">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100">Agent 001</h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-400">TestersCompanyAgent</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Total Calls -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-100 dark:border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400">
+                        <i class="fas fa-phone-volume"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-xl">0</h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-400">Total Calls</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Answered Calls -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-100 dark:border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 dark:text-blue-400">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-xl">0</h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-400">Answered Calls</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Not Answered Calls -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm flex items-center space-x-4 border border-gray-100 dark:border-gray-700">
+                    <div class="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 dark:text-red-400">
+                        <i class="fas fa-phone-slash"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-xl">0</h3>
+                        <p class="text-xs text-gray-400 dark:text-gray-400">Not Answered Calls</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex space-x-8">
+                    <button id="tab-call-history" onclick="switchTab('call-history')" class="pb-2 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold text-sm transition-colors">Call History</button>
+                    <button id="tab-contact-list" onclick="switchTab('contact-list')" class="pb-2 border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium text-sm transition-colors">Contact List</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Content (Filters + Table) -->
+        <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar relative z-0">
+            <!-- Search Section -->
+            <div class="mb-2 relative">
+                <!-- Collapsed Search Bar -->
+                <div id="search-collapsed" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center justify-between cursor-pointer transition-all hover:border-gray-300 dark:hover:border-gray-600" onclick="toggleSearch()">
+                    <div class="flex items-center w-full">
+                        <i class="fas fa-search text-gray-400 mr-3"></i>
+                        <span class="text-sm text-gray-400">Filter...</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-300 dark:text-gray-500 text-xs"></i>
+                </div>
+
+                <!-- Expanded Search Panel -->
+                <div id="search-expanded" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-4 w-full">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-4 cursor-pointer" onclick="toggleSearch()">
+                        <div class="flex items-center">
+                            <i class="fas fa-search text-gray-600 dark:text-gray-300 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Filter...</span>
+                        </div>
+                        <i class="fas fa-chevron-up text-gray-400 dark:text-gray-500 text-xs"></i>
+                    </div>
+                    
+                    <!-- Separator Line -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 mb-4"></div>
+
+                    <!-- Filters Grid -->
+                    <div id="filter-grid" class="grid grid-cols-4 gap-4 mb-6">
+                        <!-- Start Date (Call History Only) -->
+                        <div class="space-y-1 date-field">
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Start Date</label>
+                            <div class="relative">
+                                <input type="text" placeholder="dd-mm-yyyy" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 px-3 text-sm text-gray-600 dark:text-gray-200 outline-none focus:border-purple-400">
+                                <i class="far fa-calendar absolute right-3 top-2.5 text-gray-400 dark:text-gray-500"></i>
+                            </div>
+                        </div>
+
+                        <!-- End Date (Call History Only) -->
+                        <div class="space-y-1 date-field">
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">End Date</label>
+                            <div class="relative">
+                                <input type="text" placeholder="dd-mm-yyyy" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 px-3 text-sm text-gray-600 dark:text-gray-200 outline-none focus:border-purple-400">
+                                <i class="far fa-calendar absolute right-3 top-2.5 text-gray-400 dark:text-gray-500"></i>
+                            </div>
+                        </div>
+
+                        <!-- Campaign (Custom Dropdown) -->
+                        <div class="space-y-1 col-span-1 campaign-field">
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Campaign</label>
+                            <div class="relative">
+                                <div class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 px-3 text-sm text-gray-600 dark:text-gray-200 cursor-pointer flex justify-between items-center" onclick="toggleDropdown(this)">
+                                    <span class="selected-value">Select Campaign</span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-400 dark:text-gray-500"></i>
+                                </div>
+                                <div class="custom-select-options">
+                                    <div class="custom-option" onclick="selectOption(this)">TestingCamp3</div>
+                                    <div class="custom-option" onclick="selectOption(this)">TestingCamp2</div>
+                                    <div class="custom-option" onclick="selectOption(this)">TestingCamp1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="space-y-1 col-span-1 phone-field">
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400">Phone Number</label>
+                            <input type="text" placeholder="Phone Number" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg py-2 px-3 text-sm text-gray-600 dark:text-gray-200 outline-none focus:border-purple-400">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-3">
+                        <button class="px-6 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition">Reset</button>
+                        <button class="px-6 py-2 bg-[#7e22ce] text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition shadow-sm">Search</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call History Table (Default) -->
+            <div id="call-history-view" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 text-xs uppercase text-gray-400 dark:text-gray-500 font-medium">
+                            <th class="px-6 py-4 font-medium">Date Time</th>
+                            <th class="px-6 py-4 font-medium">Customer</th>
+                            <th class="px-6 py-4 font-medium">Campaign</th>
+                            <th class="px-6 py-4 font-medium">Duration</th>
+                            <th class="px-6 py-4 font-medium">Disposition</th>
+                            <th class="px-6 py-4 font-medium text-center">Call Notes</th>
+                            <th class="px-6 py-4 font-medium text-center">Status</th>
+                            <th class="px-6 py-4 font-medium text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300 font-mono text-xs">2026-01-26 16:21:22</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">+918591340748</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200 font-mono text-xs"><span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">00:00:21</span></td>
+                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400">dnc test</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="openNotesModal()" class="text-blue-400 hover:text-blue-500"><i class="fas fa-eye"></i></button>
+                            </td>
+                            <td class="px-6 py-4 text-center text-emerald-500 dark:text-emerald-400 font-medium">Connected</td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex flex-col items-center space-y-1">
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-phone-alt text-xs"></i></button>
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-play text-xs"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300 font-mono text-xs">2026-01-26 16:18:57</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">+918591340748</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200 font-mono text-xs"><span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">00:01:23</span></td>
+                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400">dnc test</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="openNotesModal()" class="text-blue-400 hover:text-blue-500"><i class="fas fa-eye"></i></button>
+                            </td>
+                            <td class="px-6 py-4 text-center text-red-500 dark:text-red-400 font-medium">Failed</td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex flex-col items-center space-y-1">
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-phone-alt text-xs"></i></button>
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-play text-xs"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-gray-600 dark:text-gray-300 font-mono text-xs">2026-01-26 16:18:02</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">+918591340748</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200 font-mono text-xs"><span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">00:00:21</span></td>
+                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400">dnc test</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="openNotesModal()" class="text-blue-400 hover:text-blue-500"><i class="fas fa-eye"></i></button>
+                            </td>
+                            <td class="px-6 py-4 text-center text-emerald-500 dark:text-emerald-400 font-medium">Connected</td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex flex-col items-center space-y-1">
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-phone-alt text-xs"></i></button>
+                                    <button class="w-6 h-6 border border-gray-200 dark:border-gray-600 rounded flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"><i class="fas fa-play text-xs"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Pagination -->
+                <div class="px-6 py-4 flex justify-between items-center border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center space-x-2">
+                        <span>Rows per page:</span>
+                        <select class="border border-gray-200 dark:border-gray-600 rounded px-2 py-1 outline-none bg-white dark:bg-gray-700">
+                            <option>5</option>
+                            <option>10</option>
+                            <option>20</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span>Page 1 of 5</span>
+                        <div class="flex space-x-2">
+                            <button class="w-8 h-8 flex items-center justify-center border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-400">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact List Table (Hidden by default) -->
+            <div id="contact-list-view" class="hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 text-xs uppercase text-gray-400 dark:text-gray-500 font-medium">
+                            <th class="px-6 py-4 font-medium w-1/4">CAMPAIGN</th>
+                            <th class="px-6 py-4 font-medium w-1/4">CUSTOMER</th>
+                            <th class="px-6 py-4 font-medium w-1/4">PHONE</th>
+                            <th class="px-6 py-4 font-medium text-center w-1/4">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">Anusha</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400">918591340748</td>
+                            <td class="px-6 py-4 text-center">
+                                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"><i class="fas fa-phone-alt transform rotate-90"></i></button>
+                            </td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">Saurabh</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400">918149461034</td>
+                            <td class="px-6 py-4 text-center">
+                                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"><i class="fas fa-phone-alt transform rotate-90"></i></button>
+                            </td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">first</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400">+918805497830</td>
+                            <td class="px-6 py-4 text-center">
+                                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"><i class="fas fa-phone-alt transform rotate-90"></i></button>
+                            </td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-50 dark:border-gray-700 last:border-0">
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400 font-medium">TestingCamp3</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-200">second</td>
+                            <td class="px-6 py-4 text-[#7e22ce] dark:text-purple-400">+919833213205</td>
+                            <td class="px-6 py-4 text-center">
+                                <button class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"><i class="fas fa-phone-alt transform rotate-90"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Pagination (Shared Style) -->
+                <div class="px-6 py-4 flex justify-between items-center border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center space-x-2">
+                        <span>Rows per page:</span>
+                        <select class="border border-gray-200 dark:border-gray-600 rounded px-2 py-1 outline-none bg-white dark:bg-gray-700">
+                            <option>5</option>
+                            <option>10</option>
+                            <option>20</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span>Page 1 of 5</span>
+                        <div class="flex space-x-2">
+                            <button class="w-8 h-8 flex items-center justify-center border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-400">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Call Information View -->
+        <div id="call-information-view" class="hidden flex-1 overflow-y-auto px-8 pt-8 pb-8 custom-scrollbar">
+            <div class="max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+                <div class="space-y-6">
+                    <!-- Campaign Name -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">Campaign Name</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">undefined</p>
+                    </div>
+                    <!-- Customer Name -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">Customer Name</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 min-h-[1.25rem]"></p>
+                    </div>
+                    <!-- Phone Number -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">Phone Number</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">+9*********48</p>
+                    </div>
+                    <!-- Caller Id -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">Caller Id</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">19999999860</p>
+                    </div>
+                    <!-- Mode Of Calling -->
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-0 last:pb-0">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">Mode Of Calling</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">manual</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="w-[360px] bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
+        <!-- Sidebar Header (Callbacks & Preview) -->
+        <div class="h-[73px] flex items-end px-6 space-x-6 text-sm font-medium border-b border-gray-100 dark:border-gray-700">
+            <button id="sb-tab-callbacks" onclick="switchSidebarTab('callbacks')" class="pb-4 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold transition-colors">Callbacks</button>
+            <button id="sb-tab-preview" onclick="switchSidebarTab('preview')" class="pb-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center">
+                Preview 
+                <span class="ml-2 bg-[#0ea5e9] text-white text-xs font-bold px-2 py-0.5 rounded-full">14</span>
+            </button>
+            <button id="sb-tab-last" onclick="switchSidebarTab('last')" class="pb-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors">Last Interactions</button>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900/50">
+            <!-- Callbacks View -->
+            <div id="view-callbacks" class="space-y-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600">
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Customer Number :</span> <span class="text-gray-600 dark:text-gray-400">+9*********05</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Caller Id :</span> <span class="text-gray-600 dark:text-gray-400">19999999843</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Campaign Name :</span> <span class="text-gray-600 dark:text-gray-400">test123</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Callback Time :</span> <span class="text-gray-600 dark:text-gray-400">2026-01-27 17:15:00</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview View -->
+            <div id="view-preview" class="hidden space-y-3">
+                <!-- Item 1 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600 flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400 font-medium">test123</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-200">3</span>
+                </div>
+                <!-- Item 2 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600 flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400 font-medium">auto21</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-200">6</span>
+                </div>
+                <!-- Item 3 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600 flex justify-between items-center">
+                    <span class="text-gray-600 dark:text-gray-400 font-medium">testing</span>
+                    <span class="font-bold text-gray-800 dark:text-gray-200">5</span>
+                </div>
+            </div>
+
+            <!-- Last Interactions View -->
+            <div id="view-last" class="hidden space-y-4">
+                <!-- Interaction 1 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600">
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Campaign Name :</span> <span class="text-gray-600 dark:text-gray-400">TestingCamp3</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Customer Number :</span> <span class="text-gray-600 dark:text-gray-400">+9*********48</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Dispose Name :</span> <span class="text-gray-600 dark:text-gray-400">dnc test</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Calling Mode :</span> <span class="text-gray-600 dark:text-gray-400">manual</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Date Time :</span> <span class="text-gray-600 dark:text-gray-400">2026-01-27 18:14:05</span></p>
+                    </div>
+                </div>
+                <!-- Interaction 2 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600">
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Campaign Name :</span> <span class="text-gray-600 dark:text-gray-400">TestingCamp3</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Customer Number :</span> <span class="text-gray-600 dark:text-gray-400">+9*********48</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Dispose Name :</span> <span class="text-gray-600 dark:text-gray-400">dnc test</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Calling Mode :</span> <span class="text-gray-600 dark:text-gray-400">manual</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Date Time :</span> <span class="text-gray-600 dark:text-gray-400">2026-01-27 18:00:16</span></p>
+                    </div>
+                </div>
+                <!-- Interaction 3 -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border-l-4 border-gray-300 dark:border-gray-600">
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Campaign Name :</span> <span class="text-gray-600 dark:text-gray-400">TestingCamp3</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Customer Number :</span> <span class="text-gray-600 dark:text-gray-400">+9*********48</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Dispose Name :</span> <span class="text-gray-600 dark:text-gray-400">Test Call</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Calling Mode :</span> <span class="text-gray-600 dark:text-gray-400">manual</span></p>
+                        <p><span class="font-bold text-gray-700 dark:text-gray-300">Date Time :</span> <span class="text-gray-600 dark:text-gray-400">2026-01-27 17:59:00</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section: Controls -->
+        <div id="sidebar-controls" class="p-6 bg-white dark:bg-gray-800 transition-colors border-t border-gray-100 dark:border-gray-700 relative">
+            
+            <!-- Collapse Toggle Button -->
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <button onclick="toggleSidebarControls()" class="w-6 h-6 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm flex items-center justify-center text-gray-400 dark:text-gray-300 hover:text-[#7e22ce] dark:hover:text-purple-400 transition-colors z-10">
+                    <i id="control-toggle-icon" class="fas fa-chevron-down text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Collapsible Content -->
+            <div id="controls-content" class="space-y-4">
+                <!-- Control Buttons Row -->
+                <div class="flex items-center space-x-2 relative">
+                    <!-- Pause Dropdown -->
+                    <div class="relative pause-dropdown-container">
+                        <button onclick="togglePauseDropdown(this)" class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <!-- Pause Options -->
+                        <div style="top: auto;" class="absolute bottom-12 left-0 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-20 custom-select-options">
+                            <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-600 dark:text-gray-300" onclick="selectPauseOption(this)">Meeting</div>
+                            <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-600 dark:text-gray-300" onclick="selectPauseOption(this)">Tea Break</div>
+                            <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-600 dark:text-gray-300" onclick="selectPauseOption(this)">Briefing</div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-purple-100 dark:bg-purple-900/40 rounded-lg h-10 flex items-center justify-center text-[#7e22ce] dark:text-purple-300 text-sm font-bold px-2 relative transition-colors">
+                        <span class="mr-2">IDLE</span> <span id="timer">0:06:59</span>
+                    </div>
+                    <button title="Logout" onclick="agentLogout()" class="w-10 h-10 rounded-lg bg-red-500 text-white hover:bg-red-600 flex items-center justify-center transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Campaign Selector -->
+                <div class="relative campaign-dropdown-container">
+                    <button onclick="toggleCampaignDropdown(this)" class="w-full bg-[#6b21a8] text-white rounded-lg py-3 px-4 flex justify-between items-center text-sm font-medium shadow-sm hover:bg-[#581c87] transition">
+                        <span class="selected-campaign">TestingCamp3</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <!-- Campaign Options -->
+                    <div style="top: auto;" class="absolute bottom-12 left-0 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-20 custom-select-options">
+                        <div class="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 text-[#6b21a8] dark:text-purple-300 font-medium cursor-pointer text-sm" onclick="selectCampaign(this)">TestingCamp3</div>
+                        <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-600 dark:text-gray-300" onclick="selectCampaign(this)">TestingCamp1</div>
+                        <div class="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer text-sm text-gray-600 dark:text-gray-300" onclick="selectCampaign(this)">TestingCamp2</div>
+                    </div>
+                </div>
+
+                <!-- Number Input -->
+                <div class="relative">
+                    <input type="text" placeholder="Enter number.." class="w-full bg-purple-50 dark:bg-gray-700 border-0 rounded-lg py-3 px-4 text-center text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900 outline-none transition-colors">
+                </div>
+
+                <!-- Call Button -->
+                <button class="w-full bg-[#10b981] text-white rounded-lg py-3 font-medium shadow-sm hover:bg-emerald-600 transition flex items-center justify-center">
+                    <i class="fas fa-phone-alt mr-2"></i> Call
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Modal for Call Notes -->
+    <div id="notes-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Call Notes</h3>
+                <button onclick="closeNotesModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="px-6 py-4">
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <h4 class="font-bold text-gray-800 dark:text-gray-100 mb-2">Goal:</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Understand pain points, budget, and authority.</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-gray-800 dark:text-gray-100 mb-2">Sample Note:</h4>
+                        <div class="space-y-2 text-gray-600 dark:text-gray-400">
+                            <p><strong>Current Situation:</strong> Uses Competitor X, but manual reporting causes 3-day delays.</p>
+                            <p><strong>Pain Points:</strong> Inability to scale, high error rate, frustrated with lack of support from current vendor.</p>
+                            <p><strong>Success Criteria:</strong> Needs a solution that reduces reporting to less than 1 day and integrates with Salesforce.</p>
+                            <p><strong>Budget/Timeline:</strong> $10k–$15k budget, wants implementation before Q3.</p>
+                            <p><strong>Action Items:</strong> Send Case Study A (Rep – Friday); Send API documentation (Rep – Friday); Schedule Demo with VP of Ops (Prospect – Next Tuesday).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main Tab Switching Logic (Dashboard vs Call Information)
+        function switchMainTab(tabId) {
+            const dashboardView = document.getElementById('dashboard-view');
+            const callInfoView = document.getElementById('call-information-view');
+            const dashboardTab = document.getElementById('main-tab-dashboard');
+            const callInfoTab = document.getElementById('main-tab-call-info');
+
+            if (tabId === 'dashboard') {
+                dashboardView.classList.remove('hidden');
+                callInfoView.classList.add('hidden');
+                
+                // Update Tab Styles
+                dashboardTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                dashboardTab.classList.add('border-[#7e22ce]', 'text-[#7e22ce]');
+                
+                callInfoTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                callInfoTab.classList.remove('border-[#7e22ce]', 'text-[#7e22ce]');
+            } else if (tabId === 'call-info') {
+                dashboardView.classList.add('hidden');
+                callInfoView.classList.remove('hidden');
+
+                // Update Tab Styles
+                callInfoTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                callInfoTab.classList.add('border-[#7e22ce]', 'text-[#7e22ce]');
+                
+                dashboardTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                dashboardTab.classList.remove('border-[#7e22ce]', 'text-[#7e22ce]');
+            }
+        }
+
+        // Search Toggle Logic
+    function toggleSearch() {
+        const collapsed = document.getElementById('search-collapsed');
+        const expanded = document.getElementById('search-expanded');
+        
+        if (collapsed.classList.contains('hidden')) {
+            // Collapse
+            collapsed.classList.remove('hidden');
+            expanded.classList.add('hidden');
+        } else {
+            // Expand
+            collapsed.classList.add('hidden');
+            expanded.classList.remove('hidden');
+        }
+    }
+
+    // Custom Dropdown Logic
+    function toggleDropdown(element) {
+        const options = element.nextElementSibling;
+        options.classList.toggle('open');
+        
+        // Close other dropdowns if any (not strictly needed for single dropdown but good practice)
+        document.querySelectorAll('.custom-select-options').forEach(opt => {
+            if (opt !== options) opt.classList.remove('open');
+        });
+    }
+
+    function selectOption(element) {
+        const value = element.innerText;
+        const dropdown = element.parentElement.previousElementSibling;
+        const displaySpan = dropdown.querySelector('.selected-value');
+        displaySpan.innerText = value;
+        element.parentElement.classList.remove('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.campaign-field')) {
+            document.querySelectorAll('.custom-select-options').forEach(opt => {
+                opt.classList.remove('open');
+            });
+        }
+    });
+
+    // Tab Switching Logic
+    function switchTab(tabId) {
+        const callHistoryBtn = document.getElementById('tab-call-history');
+        const contactListBtn = document.getElementById('tab-contact-list');
+        const callHistoryView = document.getElementById('call-history-view');
+        const contactListView = document.getElementById('contact-list-view');
+        const filterGrid = document.getElementById('filter-grid');
+        const dateFields = document.querySelectorAll('.date-field');
+        
+        // Reset styles
+        callHistoryBtn.className = "pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition-colors";
+        contactListBtn.className = "pb-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm transition-colors";
+        
+        callHistoryView.classList.add('hidden');
+        contactListView.classList.add('hidden');
+
+        if (tabId === 'call-history') {
+            callHistoryBtn.className = "pb-2 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold text-sm transition-colors";
+            callHistoryView.classList.remove('hidden');
+            
+            // Show date fields
+            dateFields.forEach(el => el.classList.remove('hidden'));
+            
+            // Restore grid layout
+            if (filterGrid) {
+                filterGrid.classList.remove('grid-cols-2');
+                filterGrid.classList.add('grid-cols-4');
+            }
+        } else {
+            contactListBtn.className = "pb-2 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold text-sm transition-colors";
+            contactListView.classList.remove('hidden');
+            
+            // Hide date fields
+            dateFields.forEach(el => el.classList.add('hidden'));
+            
+            // Adjust grid layout to 2 columns
+            if (filterGrid) {
+                filterGrid.classList.remove('grid-cols-4');
+                filterGrid.classList.add('grid-cols-2');
+            }
+        }
+    }
+
+    // Simple timer logic to mimic the screenshot
+        let seconds = 59;
+        let minutes = 6;
+        let hours = 0;
+        
+        function updateTimer() {
+            seconds++;
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+                if (minutes >= 60) {
+                    minutes = 0;
+                    hours++;
+                }
+            }
+            
+            const format = (num) => num.toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${hours}:${format(minutes)}:${format(seconds)}`;
+        }
+
+        setInterval(updateTimer, 1000);
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const sunIcon = themeToggleBtn.querySelector('.fa-sun');
+        const moonIcon = themeToggleBtn.querySelector('.fa-moon');
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+        });
+
+        // Sidebar Tab Switching Logic
+        function switchSidebarTab(tabId) {
+            const callbacksBtn = document.getElementById('sb-tab-callbacks');
+            const previewBtn = document.getElementById('sb-tab-preview');
+            const lastBtn = document.getElementById('sb-tab-last');
+            const callbacksView = document.getElementById('view-callbacks');
+            const previewView = document.getElementById('view-preview');
+            const lastView = document.getElementById('view-last');
+
+            // Reset styles
+            callbacksBtn.className = "pb-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors";
+            previewBtn.className = "pb-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center";
+            lastBtn.className = "pb-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors";
+
+            callbacksView.classList.add('hidden');
+            previewView.classList.add('hidden');
+            lastView.classList.add('hidden');
+
+            if (tabId === 'callbacks') {
+                callbacksBtn.className = "pb-4 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold transition-colors";
+                callbacksView.classList.remove('hidden');
+            } else if (tabId === 'preview') {
+                previewBtn.className = "pb-4 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold transition-colors flex items-center";
+                previewView.classList.remove('hidden');
+            } else {
+                lastBtn.className = "pb-4 border-b-2 border-[#7e22ce] text-[#7e22ce] font-semibold transition-colors";
+                lastView.classList.remove('hidden');
+            }
+        }
+
+        // Toggle Sidebar Controls Logic
+        function toggleSidebarControls() {
+            const controlsContent = document.getElementById('controls-content');
+            const toggleIcon = document.getElementById('control-toggle-icon');
+            
+            if (controlsContent.classList.contains('hidden')) {
+                // Show controls
+                controlsContent.classList.remove('hidden');
+                toggleIcon.className = "fas fa-chevron-down text-xs";
+            } else {
+                // Hide controls
+                controlsContent.classList.add('hidden');
+                toggleIcon.className = "fas fa-chevron-up text-xs";
+            }
+        }
+
+        // Toggle Campaign Dropdown
+        function toggleCampaignDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
+            const container = btn.closest('.campaign-dropdown-container');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.pause-dropdown-container .custom-select-options').forEach(el => {
+                el.classList.remove('open');
+            });
+            
+            dropdown.classList.toggle('open');
+        }
+
+        // Select Campaign
+        function selectCampaign(option) {
+            const value = option.innerText;
+            const container = option.closest('.campaign-dropdown-container');
+            const displaySpan = container.querySelector('.selected-campaign');
+            
+            displaySpan.innerText = value;
+            option.parentElement.classList.remove('open');
+        }
+
+        // Toggle Pause Dropdown
+        function togglePauseDropdown(btn) {
+            const dropdown = btn.nextElementSibling;
+            
+            // Close other dropdowns
+            document.querySelectorAll('.campaign-dropdown-container .custom-select-options').forEach(el => {
+                el.classList.remove('open');
+            });
+
+            dropdown.classList.toggle('open');
+        }
+
+        // Select Pause Option
+        function selectPauseOption(option) {
+            // Just close for now, as no specific action was requested other than showing options
+            option.parentElement.classList.remove('open');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.campaign-dropdown-container')) {
+                document.querySelectorAll('.campaign-dropdown-container .custom-select-options').forEach(el => {
+                    el.classList.remove('open');
+                });
+            }
+            if (!e.target.closest('.pause-dropdown-container')) {
+                document.querySelectorAll('.pause-dropdown-container .custom-select-options').forEach(el => {
+                    el.classList.remove('open');
+                });
+            }
+        });
+
+        // Modal Functions
+        function openNotesModal() {
+            const modal = document.getElementById('notes-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeNotesModal() {
+            const modal = document.getElementById('notes-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        function agentLogout(){
+            localStorage.removeItem('authRole');
+            window.location.replace('login.html');
+        }
+    </script>
+</body>
+</html>
